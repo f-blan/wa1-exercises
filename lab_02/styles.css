@@ -1,0 +1,51 @@
+nav {
+    background-color:green;
+    color: white;
+    margin:auto;
+    padding: 1rem;
+    
+}
+
+aside {
+    padding: 2rem;
+    background-color:honeydew;
+    height: 100%;
+}
+
+.active {
+    background-color: green;
+    color: white;
+    padding: 1rem;
+    width: 80rem;
+}
+
+main {
+    padding: 1rem;
+    
+    width: 1rem;
+    
+}
+
+.important_task {
+    color: red;
+}
+
+.center_page {
+    height: 60rem;
+    
+}
+
+footer {
+    padding: 3%;
+}
+
+.round_button {
+    background-color: green;
+    border: none;
+    color:white;
+    text-align: center;
+    border-radius: 50%;
+    display: inline-block;
+    font-size: 16px;
+    padding: 1rem;
+}
