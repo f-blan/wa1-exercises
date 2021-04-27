@@ -1,12 +1,14 @@
 import {Col, Button} from 'react-bootstrap' ;
 import {useState} from 'react' ;
-import {Container, Row, Dropdown,} from 'react-bootstrap';
+import {Container, Row, Dropdown, Modal} from 'react-bootstrap';
 import "./App.css"
 import TaskRow from './TaskComponents.js';
 
 
 
 function MyBody(props){
+
+    
     const [selected, setSelected] = useState('All');
     const [tasks, setTasks] = useState([...props.tasks]);
     //const [filters, setFilters] = useState([...props.filters]);
@@ -16,14 +18,18 @@ function MyBody(props){
       let chosen_filter = props.filters.filter((f) => f.name === name).pop().filter;
       setTasks(props.tasks.filter(t => chosen_filter(t)));
     }
+
     
+    
+
+
     return(
         <>
         <Container fluid>
         <Row>
             <MySide selected = {selected} filters = {props.filters} choose = {chooseFilter}/>
 
-            <MyMain selected = {selected} tasks = {tasks}/> 
+            <MyMain selected = {selected} tasks = {tasks} filters/> 
         
             <MyButton/>
         </Row>
@@ -83,10 +89,35 @@ function MyMain(props){
     );
 }
 function MyButton(){
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
     return(
-        <>
-        <Button type="button" className="fixed-right-bottom" size="lg" variant="success">&#43;</Button>
-        </>
+    
+    <>
+    
+      <Button type="button" className="fixed-right-bottom" size="lg" variant="success" onClick={handleShow}>
+        +
+      </Button>
+
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add a Task</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="success" onClick={handleClose}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
+    
     );
 }
 

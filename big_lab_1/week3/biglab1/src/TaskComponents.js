@@ -5,14 +5,18 @@ function TaskRow(props){
     const trash_icon =  <Trash/>;
     const modify_icon = <PencilSquare/>;
     let private_icon =  undefined;
+    let important = undefined;
     if(props.task.private){
         private_icon = <PersonSquare/>
+    }
+    if(props.task.important){
+        important= "important";
     }
     return(
         <>
         <Row>
         <Col xs = {{ span: 3, offset: 1 }}>
-            <Form.Check type="checkbox" label={props.task.description}/>
+            <Form.Check type="checkbox" className = {important} label={props.task.description}/>
         </Col>
         <Col xs = {{span: 1, offset: 1}}>
             {private_icon}
