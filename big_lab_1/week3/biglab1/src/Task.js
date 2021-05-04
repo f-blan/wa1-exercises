@@ -45,15 +45,18 @@ function filter_bseven(task){
     return  false;
 }
 
-function TaskList(){
-    let list = [];
+function TaskList(paramlist){
+    let list = paramlist.map((x) => x);
 
 
     this.getList=function(){
         return list;
+        
     }
     this.add= function(task){
+        
         list.push(task);
+        return this;
     }
     
 }
@@ -90,14 +93,14 @@ function get_List(){
 
     const t5 = new Task(5, "deadline for this is 3 days in the future", 0 , 1, dayjs().add(3, 'day'));
     // create the task list and add the dummy tasks
-    const taskList = new TaskList();
+    const taskList = new TaskList([]);
     taskList.add(t1);
     taskList.add(t2);
     taskList.add(t3);
     taskList.add(t4);
     taskList.add(t5);
 
-    return taskList.getList();
+    return taskList;
 }
 
 function TaskInit(){
@@ -107,7 +110,7 @@ function TaskInit(){
     
 }
 
-export default TaskInit; 
+export {TaskInit, Task, TaskList}; 
 
 
 

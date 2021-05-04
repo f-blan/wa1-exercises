@@ -5,7 +5,7 @@ import {Col, Navbar, Form} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import MyBody from './BodyComponents.js';
-import TaskInit from './Task.js';
+import {TaskInit} from './Task.js';
 
 
 

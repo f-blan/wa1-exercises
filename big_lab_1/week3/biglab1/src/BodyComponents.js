@@ -3,14 +3,14 @@ import {useState} from 'react' ;
 import {Container, Row, Dropdown, Modal, Form} from 'react-bootstrap';
 import "./App.css"
 import TaskRow from './TaskComponents.js';
-//import Task from './Task.js';
+import {Task, TaskList} from './Task.js';
 import dayjs from 'dayjs';
 
 
 function MyBody(props){
     //let filter_all = props.filters.filter((f) => f.name === 'All').pop();
     const [selected, setSelected] = useState('All');
-    const [tasks, setTasks] = useState([...props.tasks]);
+    const [tasks, setTasks] = useState(props.tasks);
     //const [filters, setFilters] = useState([...props.filters]);
     
     const chooseFilter = (name) => {
@@ -18,8 +18,14 @@ function MyBody(props){
     }
 
     const addTask = (task) => {
-
-      setTasks(oldTasks=>[...oldTasks, task]);
+      props.tasks.add(task);
+      
+      setTasks(() => {
+        let newTasks = new TaskList(props.tasks.getList());
+        return newTasks;
+      });
+      
+      
     }
     
 
@@ -82,7 +88,7 @@ function MyMain(props){
         <h1 className = "taskhead"><strong>Filter: </strong>{props.selected}</h1>
         <Dropdown.Divider/>
         {
-          props.tasks.filter((t)=>selected_filter(t)).map((t) => <TaskRow task = {t} key ={t.id}/>)
+          props.tasks.getList().filter((t)=>selected_filter(t)).map((t) => <TaskRow task = {t} key ={t.id}/>)
         }
         </Col>
         </>
@@ -114,24 +120,49 @@ function MyModal(props){
   const [description, setDescription] = useState('');
   const [important, setImportant] = useState(false);
   const [priv, setPriv] = useState(false);
-  const [date, setDate] = useState(dayjs());
-  const [validated, setValidated] = useState(false);
+  const [date, setDate] = useState("");
+  //const [validated, setValidated] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = (event) =>{
-    const form = event.currentTarget;
+    //const form = event.currentTarget;
+    let valid = true;
+    let localerr = [];
     event.preventDefault();
-    if(form.checkValidity ===false  ){
-      event.preventDefault();
-      event.stopPropagation();
-    }else{
-        setValidated(true);
-
-      
+    if(description === ""){
+      valid = false;
+      localerr.push("Missing description")
+      //setError((old) => old.concat("-Missing Description-"));
+      console.log(localerr);
     }
-    if(validated ===true){
-      const last_id = props.tasks.map((t) => t.id).sort((a,b) => b-a)[0];
-      const task = {id : last_id+1, description : description, important : important, private : priv, deadline : date};
+
+    if(props.tasks.getList().map((t) => t.description).includes(description)){
+      valid = false;
+      if(localerr!==[]){
+        localerr.push(", ");
+      }
+      localerr.push("Description has to be unique");
+      //setError((old) => old.concat("-description has to be unique-"));
+    }
+
+    if(dayjs().isAfter(date)){
+      valid = false;
+      if(localerr!==[]){
+        localerr.push(", ");
+      }
+      localerr.push("Input date has expired already");
+      //setError((old) => old.concat("-date has already expired-"));
+    }
+    setError(localerr);
+    if(valid ===true){
+      const last_id = props.tasks.getList().length +1;
+      const task = new Task(last_id, description, important, priv, date);//{id : last_id+1, description : description, important : important, private : priv, deadline : date};
       props.addTask(task);
+      setError("");
+      setDescription("");
+      setImportant(false);
+      setPriv(false);
+      setDate("");
     }
   }
   return(
@@ -140,32 +171,29 @@ function MyModal(props){
         <Modal.Header closeButton>
           <Modal.Title>Add a task</Modal.Title>
         </Modal.Header>
-        <Form noValidate validated={validated} onSubmit={handleSubmit}>
+        <Form>
         <Modal.Body>
           <Form.Group controlid="formTaskDescription">
             <Form.Label>Task Description</Form.Label>
             <Form.Control required type = "text" placeholder="...enter description" value = {description} onChange={(ev) => setDescription(ev.target.value)}/>
-            <Form.Control.Feedback>Ok!</Form.Control.Feedback>
-            <Form.Control.Feedback type= "invalid">Please provide a description</Form.Control.Feedback>
           </Form.Group>
           <Form.Group controlid="formImportant">
-            <Form.Check type="checkbox" label="Important" value = {important} onChange={(ev)=> setImportant(i =>!i)}/>
+            <Form.Check type="checkbox" label="Important" value = {important} onChange={() => setImportant(i =>!i)}/>
           </Form.Group>
           <Form.Group controlid="formPrivate">
-            <Form.Check type="checkbox" label="Private" value = {priv} onChange={(ev) => setPriv(p =>!p)}/>
+            <Form.Check type="checkbox" label="Private" value = {priv} onChange={() => setPriv( asd =>!asd)}/>
           </Form.Group>
           <Form.Group controlid='formDate'>
               <Form.Label>Date</Form.Label>
-              <Form.Control required type='date' value={date.format('YYYY-MM-DD')} onChange={(ev) => setDate(dayjs(ev.target.value))}/>
-              <Form.Control.Feedback>Ok!</Form.Control.Feedback>
-              <Form.Control.Feedback type= "invalid">Please provide a valid date</Form.Control.Feedback>
+              <Form.Control type='datetime-local' value={date} onChange={(ev) => setDate(ev.target.value)}/>
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
+          <span className='important'>{error}</span>
           <Button variant="secondary" onClick={props.handleClose}>
             Close
           </Button>
-          <Button variant="success" type="submit">
+          <Button variant="success" onClick={handleSubmit}>
             Save Changes
           </Button>
         </Modal.Footer>
