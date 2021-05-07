@@ -5,16 +5,17 @@ import "./App.css"
 import TaskRow from './TaskComponents.js';
 import {Task, TaskList} from './Task.js';
 import dayjs from 'dayjs';
+import {Link} from 'react-router-dom';
 
 
 function MyBody(props){
     //let filter_all = props.filters.filter((f) => f.name === 'All').pop();
-    const [selected, setSelected] = useState('All');
+    //const [selected, setSelected] = useState('All');
     const [tasks, setTasks] = useState(props.tasks);
     //const [filters, setFilters] = useState([...props.filters]);
     
     const chooseFilter = (name) => {
-      setSelected(name);
+      //setSelected(name);
     }
 
     const addTask = (task) => {
@@ -23,8 +24,17 @@ function MyBody(props){
       setTasks(() => {
         let newTasks = new TaskList(props.tasks.getList());
         return newTasks;
-      });
+      }); 
+    }
+    
+    const modifyTask = (task) =>{
+      props.tasks.modify(task);
 
+      setTasks(() => {
+        let newTasks = new TaskList(props.tasks.getList());
+        return newTasks;
+      });
+    }
     const removeTask = (task) => {
       props.tasks.remove(task);
 
@@ -32,28 +42,17 @@ function MyBody(props){
         let newTasks = new TaskList(props.tasks.getList());
         return newTasks;
       });
-      const modifyTask = (task) =>{
-        props.tasks.modify(task);
-
-        setTasks(() => {
-          let newTasks = new TaskList(props.tasks.getList());
-          return newTasks;
-        });
-      }
     } 
-      
-      
-    }
+     
     
-
 
     return(
         <>
         <Container fluid>
         <Row>
-            <MySide selected = {selected} filters = {props.filters} choose = {chooseFilter}/>
+            <MySide selected = {props.selected} filters = {props.filters} choose = {chooseFilter}/>
 
-            <MyMain selected = {selected} tasks = {tasks} filters = {props.filters} modify ={modifyTask} remove = {removeTask}/> 
+            <MyMain selected = {props.selected} tasks = {tasks} filters = {props.filters} modify ={modifyTask} remove = {removeTask}/> 
         
             <MyButton addTask = {addTask} tasks = {tasks}/>
         </Row>
@@ -78,17 +77,23 @@ function MySide(props){
 }
 
 function FilterRow(props){
+    let path = '/';
+    path = path.concat(props.name);
+    
+    
     if(props.selected === props.name){
         return(
             <>
-                <Button variant="success" href="#" className="filter-button" size="lg" onClick={() => props.choose(props.name)}>{props.name}</Button>
+                <Button variant="success" className="filter-button" size="lg" onClick={() => props.choose(props.name)}>{props.name}</Button>
                 <Dropdown.Divider className="filter-divider" />
             </>
         );
     }else{
         return(
             <>
-                <Button variant="light" href="#" className="filter-button" size="lg" onClick={() => props.choose(props.name)}>{props.name}</Button>
+                <Link to={{pathname : path}}>
+                <Button variant="light" className="filter-button" size="lg" >{props.name}</Button>
+                </Link>
                 <Dropdown.Divider className="filter-divider" />
             </>
         );
@@ -97,7 +102,14 @@ function FilterRow(props){
 
 
 
-function MyMain(props){  
+function MyMain(props){
+  if(props.selected === undefined || props.selected === ''){
+    return(
+      <>
+      </>
+    );
+  }else{
+    
   let selected_filter = props.filters.filter((f) => f.name === props.selected).pop().filter;
     return(
         <>
@@ -106,12 +118,13 @@ function MyMain(props){
         <Dropdown.Divider/>
         {
           props.tasks.getList().filter((t)=>selected_filter(t)).map((t) => <TaskRow task = {t} key ={t.id} 
-          modify = {props.modify} remove = {props.remove}/>)
+          modify = {props.modify} remove = {props.remove} tasks ={props.tasks}/>)
         }
         </Col>
         </>
 
     );
+  }
 }
 function MyButton(props){
     const [show, setShow] = useState(false);
@@ -127,7 +140,7 @@ function MyButton(props){
         +
       </Button>
 
-      <MyModal show = {show} handleClose = {handleClose} tasks = {props.tasks} addTask={(task) => {props.addTask(task); handleClose()}}/>
+      <MyModal show = {show} handleClose = {handleClose} tasks = {props.tasks} functionTask={(task) => {props.addTask(task); handleClose()}}/>
       
     </>
     
@@ -135,13 +148,28 @@ function MyButton(props){
 }
 
 function MyModal(props){
-  const [description, setDescription] = useState('');
-  const [important, setImportant] = useState(false);
-  const [priv, setPriv] = useState(false);
-  const [date, setDate] = useState("");
-  //const [validated, setValidated] = useState(false);
+  let desc_init= '';
+  let important_init = false;
+  let priv_init = false;
+  let date_init = '';
+
+  if(props.task !== undefined){
+    desc_init = props.task.description;
+    important_init = props.task.important;
+    priv_init = props.task.private;
+    date_init = props.task.deadline;
+    
+      
+  }
+
+
+  const [description, setDescription] = useState(desc_init);
+  const [important, setImportant] = useState(important_init);
+  const [priv, setPriv] = useState(priv_init);
+  const [date, setDate] = useState(date_init);
   const [error, setError] = useState("");
 
+  
   const handleSubmit = (event) =>{
     //const form = event.currentTarget;
     let valid = true;
@@ -151,10 +179,10 @@ function MyModal(props){
       valid = false;
       localerr.push("Missing description")
       //setError((old) => old.concat("-Missing Description-"));
-      console.log(localerr);
+      
     }
 
-    if(props.tasks.getList().map((t) => t.description).includes(description)){
+    if(props.tasks.getList().map((t) => t.description).includes(description) && props.task===undefined){
       valid = false;
       if(localerr!==[]){
         localerr.push(", ");
@@ -173,14 +201,26 @@ function MyModal(props){
     }
     setError(localerr);
     if(valid ===true){
-      const last_id = props.tasks.getList().length +1;
-      const task = new Task(last_id, description, important, priv, date);//{id : last_id+1, description : description, important : important, private : priv, deadline : date};
-      props.addTask(task);
+      let sel_id;
+      if(props.task===undefined){
+        sel_id= props.tasks.getLastId() +1;
+      }else{
+        sel_id = props.task.id;
+      }
+      const task = new Task(sel_id, description, important, priv, date);//{id : last_id+1, description : description, important : important, private : priv, deadline : date};
+      console.log(task);
+      
+      props.functionTask(task);
       setError("");
-      setDescription("");
-      setImportant(false);
-      setPriv(false);
-      setDate("");
+      if(props.task===undefined){
+        
+        setDescription("");
+        setImportant(false);
+        setPriv(false);
+        setDate("");
+      }
+        
+      
     }
   }
   return(
@@ -196,10 +236,10 @@ function MyModal(props){
             <Form.Control required type = "text" placeholder="...enter description" value = {description} onChange={(ev) => setDescription(ev.target.value)}/>
           </Form.Group>
           <Form.Group controlid="formImportant">
-            <Form.Check type="checkbox" label="Important" value = {important} onChange={() => setImportant(i =>!i)}/>
+            <Form.Check type="checkbox" label="Important" checked = {important} onChange={() => setImportant(i =>!i)}/>
           </Form.Group>
           <Form.Group controlid="formPrivate">
-            <Form.Check type="checkbox" label="Private" value = {priv} onChange={() => setPriv( asd =>!asd)}/>
+            <Form.Check type="checkbox" label="Private" checked = {priv} onChange={() => setPriv( asd =>!asd)}/>
           </Form.Group>
           <Form.Group controlid='formDate'>
               <Form.Label>Date</Form.Label>
@@ -223,4 +263,4 @@ function MyModal(props){
   );
 }
 
-export default MyBody;
+export  {MyBody, MyModal};

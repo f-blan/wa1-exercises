@@ -1,11 +1,20 @@
 import {Col, Row, Form, Dropdown} from 'react-bootstrap' ;
 import { PencilSquare, Trash, PersonSquare } from 'react-bootstrap-icons';
+import {MyModal} from './BodyComponents.js';
+import {useState} from 'react' ;
 
 function TaskRow(props){
     const trash_icon =  <Trash/>;
     const modify_icon = <PencilSquare/>;
     let private_icon =  undefined;
     let important = undefined;
+
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
+    
     if(props.task.private){
         private_icon = <PersonSquare/>
     }
@@ -24,7 +33,7 @@ function TaskRow(props){
         <Col xs = {{ span: 4, offset: 0 }}>
             {props.task.deadline.toString()}
         </Col>
-        <Col xs = {1}>
+        <Col xs = {1} onClick={handleShow}>
             {modify_icon}
         </Col>
 
@@ -34,7 +43,11 @@ function TaskRow(props){
 
         </Row>
         <Dropdown.Divider/>
+        <MyModal show = {show} handleClose = {handleClose} tasks = {props.tasks} functionTask={(task) => {props.modify(task); handleClose()}}
+        task = {props.task}/>
+
         </>
+
     );
 }
 

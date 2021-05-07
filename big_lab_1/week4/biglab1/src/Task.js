@@ -66,12 +66,18 @@ function TaskList(paramlist){
         }
     }
 
-    this.modify(task){
-        const up = list.filter((t) => t.id = task.id).pop();
+    this.modify= function(task){
+        
+        const up = list.filter((t) => t.id === task.id).pop();
         up.description=task.description;
-        up.isPrivate= task.isPrivate;
-        up.isUrgent = task.isUrgent;
-        up.deadlin = task.deadline;
+        up.private= task.private;
+        up.important = task.important;
+        up.deadline = task.deadline;
+        
+    }
+
+    this.getLastId = function(){
+        return list.map((x)=> x.id).pop();
     }
     
 }
