@@ -152,13 +152,16 @@ function MyModal(props){
   let important_init = false;
   let priv_init = false;
   let date_init = '';
+  let hour_init = 0;
+  let min_init = 0;
 
   if(props.task !== undefined){
     desc_init = props.task.description;
     important_init = props.task.important;
     priv_init = props.task.private;
-    date_init = props.task.deadline;
-    
+    date_init = dayjs(props.task.deadline).format("YYYY-MM-DD");
+    hour_init = dayjs(props.task.deadline).format("hh");
+    min_init = dayjs(props.task.deadline).format("mm");
       
   }
 
@@ -167,6 +170,8 @@ function MyModal(props){
   const [important, setImportant] = useState(important_init);
   const [priv, setPriv] = useState(priv_init);
   const [date, setDate] = useState(date_init);
+  const [hour, setHour] = useState(hour_init);
+  const [minute, setMinute] = useState(min_init);
   const [error, setError] = useState("");
 
   
@@ -199,6 +204,22 @@ function MyModal(props){
       localerr.push("Input date has expired already");
       //setError((old) => old.concat("-date has already expired-"));
     }
+    if(hour >=24 || hour<0){
+      valid = false;
+      if(localerr!==[]){
+        localerr.push(", ");
+      }
+      localerr.push("Invalid hour");
+      //setError((old) => old.concat("-date has already expired-"));
+    }
+    if(minute >=60 || minute<0){
+      valid = false;
+      if(localerr!==[]){
+        localerr.push(", ");
+      }
+      localerr.push("Invalid minute");
+      //setError((old) => old.concat("-date has already expired-"));
+    }
     setError(localerr);
     if(valid ===true){
       let sel_id;
@@ -207,8 +228,11 @@ function MyModal(props){
       }else{
         sel_id = props.task.id;
       }
-      const task = new Task(sel_id, description, important, priv, date);//{id : last_id+1, description : description, important : important, private : priv, deadline : date};
-      console.log(task);
+      setDate((oldDate) => dayjs(oldDate));
+      
+      //console.log(dayjs(date).format("YYYY-MM-DD-hh-mm"));
+      const task = new Task(sel_id, description, important, priv, dayjs(`${date} ${hour}:${minute}`));//{id : last_id+1, description : description, important : important, private : priv, deadline : date};
+      //console.log(task);
       
       props.functionTask(task);
       setError("");
@@ -243,8 +267,22 @@ function MyModal(props){
           </Form.Group>
           <Form.Group controlid='formDate'>
               <Form.Label>Date</Form.Label>
-              <Form.Control type='datetime-local' value={date} onChange={(ev) => setDate(ev.target.value)}/>
+              <Form.Control type='date' value={date} onChange={(ev) => setDate(ev.target.value)}/>
           </Form.Group>
+          <Row>
+          <Col xs={{ span: 3, offset: 1 }}>
+          <Form.Group controlid= 'formhour'>
+              <Form.Label>Hour</Form.Label>
+              <Form.Control type="number" min={0} max ={23} value = {hour} onChange={(ev) => setHour(ev.target.value)}/>
+          </Form.Group>
+          </Col>
+          <Col xs ={{ span: 3}}>
+          <Form.Group controlid= 'formmin'>
+              <Form.Label>Minute</Form.Label>
+              <Form.Control type="number" min={0} max ={59} value = {minute} onChange={(ev) => setMinute(ev.target.value)}/>
+          </Form.Group>
+          </Col>
+          </Row>
         </Modal.Body>
         <Modal.Footer>
           <span className='important'>{error}</span>

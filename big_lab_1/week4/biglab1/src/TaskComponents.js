@@ -2,24 +2,29 @@ import {Col, Row, Form, Dropdown} from 'react-bootstrap' ;
 import { PencilSquare, Trash, PersonSquare } from 'react-bootstrap-icons';
 import {MyModal} from './BodyComponents.js';
 import {useState} from 'react' ;
+import dayjs from 'dayjs';
 
 function TaskRow(props){
     const trash_icon =  <Trash/>;
     const modify_icon = <PencilSquare/>;
     let private_icon =  undefined;
     let important = undefined;
-
+    let date = props.task.deadline.format("dddd, MMMM D YYYY h:mm a");
     const [show, setShow] = useState(false);
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-
+    
     
     if(props.task.private){
         private_icon = <PersonSquare/>
     }
     if(props.task.important){
         important= "important";
+    }
+
+    if(date.toString() === "Invalid Date"){
+        date = undefined;
     }
     return(
         <>
@@ -31,7 +36,7 @@ function TaskRow(props){
             {private_icon}
         </Col>
         <Col xs = {{ span: 4, offset: 0 }}>
-            {props.task.deadline.toString()}
+            {date}
         </Col>
         <Col xs = {1} onClick={handleShow}>
             {modify_icon}

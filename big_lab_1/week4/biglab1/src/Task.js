@@ -6,13 +6,13 @@ import dayjs from 'dayjs';
 
 
 
-function Task(id, description, isUrgent = false, isPrivate = true, deadline = '') {
+function Task(id, description, isUrgent = false, isPrivate = true, deadline = '', hour, minute) {
     this.id = id;
     this.description = description;
     this.important = isUrgent;
     this.private = isPrivate;
-    this.deadline = deadline && dayjs(deadline);
-  
+    this.deadline =dayjs(deadline);
+    
   
     this.toString = () => {
       return `Id: ${this.id}, ` +
@@ -23,6 +23,7 @@ function Task(id, description, isUrgent = false, isPrivate = true, deadline = ''
     this._formatDeadline = (format) => {
       return this.deadline ? this.deadline.format(format) : '<not defined>';
     }
+    
   }
 
 function filter_all(task){

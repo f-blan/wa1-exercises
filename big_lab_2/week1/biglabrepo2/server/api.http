@@ -1,0 +1,48 @@
+GET http://localhost:3000/api/filter/all
+
+###
+
+GET http://localhost:3000/api/filter/important
+
+###
+GET http://localhost:3000/api/filter/private
+
+###
+GET http://localhost:3000/api/filter/today
+
+###
+
+GET http://localhost:3000/api/filter/next7days
+
+###
+GET http://localhost:3000/api/filter/gnarl
+
+###
+GET http://localhost:3000/api/retrieveTask/200
+
+###
+
+POST http://localhost:3000/api/addTask
+Content-Type: application/json
+
+{ "description" : "test", "important" : 1, "private" : 1, "deadline" : "2021-06-06 12:00", "user" : 1 }
+
+###
+
+POST http://localhost:3000/api/updateTask
+Content-Type: application/json
+
+{"id": 1400, "description" : "testaaaa", "important" : 1, "private" : 1, "deadline" : "2021-06-06 12:00", "user" : 1 }
+
+###
+
+GET http://localhost:3000/api/deleteTask/15
+
+###
+
+POST http://localhost:3000/api/markTask
+Content-Type: application/json
+
+{ "id" : 2, "mark" : 0}
+
+###
