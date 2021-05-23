@@ -1,0 +1,80 @@
+
+import { CheckAll, PersonCircle } from 'react-bootstrap-icons';
+
+import {Col, Navbar, Form} from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import React from 'react';
+import {MyBody} from './BodyComponents.js';
+import {TaskInit} from './Task.js';
+import {BrowserRouter as Router, Route, Switch, Link} from 'react-router-dom';
+
+
+
+function App() {
+  
+  let data = new TaskInit();
+
+  return (
+    
+    <Router>
+    <MyNav/>
+    <Switch>
+      <Route path="/All" render ={() =>
+        <MyBody filters = {data.filters} selected = 'All' f_apiname = "all"/>
+      }/>
+      <Route path="/Important" render={()=>
+        <MyBody filters = {data.filters} selected = 'Important' f_apiname = "important"/>
+      }/>
+      <Route path="/Private" render={()=>
+        <MyBody filters = {data.filters} selected = 'Private' f_apiname = "private"/>
+      }/>
+      <Route path="/Today" render={()=>
+        <MyBody filters = {data.filters} selected = 'Today' f_apiname = "today"/>
+      }/>
+      <Route path="/Next 7 Days" render={()=>
+        <MyBody filters = {data.filters} selected = 'Next 7 Days' f_apiname = "next7days"/>
+      }/>
+      <Route path="/" render={()=>
+        <MyBody filters = {data.filters} selected ="All"/>
+      }/>
+    </Switch>
+    </Router>
+    
+  );
+}
+
+function MyNav() {
+  const todo_icon = <CheckAll size = {30}/> ;
+  const user_icon = <PersonCircle size = {30} className = "icon-user"/>;
+
+  return(
+      <>
+          <Navbar bg="success" expand="xs" variant = "dark">
+              <Col xs={2}>
+              <Link to = {{pathname : '/'}}>
+              <Navbar.Brand>{todo_icon} 
+              ToDo Manager
+              </Navbar.Brand>
+              </Link>
+              </Col>
+              <Col xs ={{ span: 4, offset: 2 }}>
+              <Form.Control type="text" placeholder="Search..." />
+
+              </Col>
+    
+              <Col xs = {{ span: 1, offset: 3 }}>
+              {user_icon}
+              </Col>
+    
+          </Navbar>
+
+
+      </>
+
+  );
+
+
+}
+
+
+export default App;
