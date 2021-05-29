@@ -6,85 +6,54 @@ import TaskRow from './TaskComponents.js';
 import {Task, TaskList} from './Task.js';
 import dayjs from 'dayjs';
 import {Link} from 'react-router-dom';
-
+import API from './API';
 
 function MyBody(props){
-    const [reload, setReload] = useState(true);
+    const [reload, setReload] = useState(false);
     const [tasks, setTasks] = useState(new TaskList([]));
-    
+    const [loading, setLoading] = useState(true);
     
 
     useEffect(()=> {
-      async function loadTasks(){
-        const response = await fetch("/api/filter/" + props.f_apiname, {
-          method : "GET",
-          headers : {
-            'Content-Type' : 'application/json',
-          },
-        
-        } );
-        
-        const body = await response.json();
-        let newTasks = new TaskList([]);
-        body.forEach(t => {
-          newTasks.add(t);
-        });
-        setTasks(newTasks);
-      }
-      
       if(reload){
-        loadTasks();
-        setReload(false);
-        
+        setLoading(true);
+        API.loadTasks(props.f_apiname).then(newT => {
+          setTasks(new TaskList(newT));
+          setReload(false);
+          setLoading(false);
+        });
       }
 
     }, [reload, props.f_apiname]);
 
     useEffect(() =>{
-      setReload(true);
-    }, []);
+      setLoading(true);
+      API.loadTasks(props.f_apiname).then(newT => {
+        setTasks(new TaskList(newT));
+        setLoading(false);
+      });
+    }, [props.f_apiname]);
 
     const askReload = () =>{
       setReload(true);
     }
 
     const addTask = (task) => {
-      async function insertTask(){
-  
-        const to_store = { "description" : task.description, "important" : task.important, "private" : task.private, "deadline" : task.deadline, "user" : task.user };
-        
-          await fetch("/api/addTask", {
-          method : "POST",
-          headers : {
-            'Content-Type' : 'application/json',
-          },
-          body : JSON.stringify(to_store),
-        } );
-        
-      }
-      insertTask();
-      setReload(true);
+      API.addTask(task).then(setReload(true));
     }
        
     
     
     const modifyTask = (task) =>{
-      props.tasks.modify(task);
-
-      setTasks(() => {
-        let newTasks = new TaskList(props.tasks.getList());
-        return newTasks;
-      });
+      API.modifyTask(task).then(setReload(true));
     }
     const removeTask = (task) => {
-      props.tasks.remove(task);
-
-      setTasks(() => {
-        let newTasks = new TaskList(props.tasks.getList());
-        return newTasks;
-      });
+      API.removeTask(task).then(setReload(true));
     } 
-     
+    
+    const markTask = (task) => {
+      API.markTask(task).then(setReload(true));
+    }
     
 
     return(
@@ -93,7 +62,8 @@ function MyBody(props){
         <Row>
             <MySide selected = {props.selected} filters = {props.filters} reload = {askReload}/>
 
-            <MyMain selected = {props.selected} tasks = {tasks} filters = {props.filters} modify ={modifyTask} remove = {removeTask}/> 
+            <MyMain selected = {props.selected} tasks = {tasks} mark = {markTask}
+            filters = {props.filters} modify ={modifyTask} remove = {removeTask} loading = {loading} /> 
         
             <MyButton addTask = {addTask} tasks = {tasks}/>
         </Row>
@@ -144,9 +114,12 @@ function FilterRow(props){
 
 
 function MyMain(props){
-  if(props.selected === undefined || props.selected === ''){
+  if(props.selected === undefined || props.selected === '' || props.loading){
     return(
       <>
+      <Col xs = {12} md={7} className="tasks">
+        <h1>Please wait for loading of the tasks...</h1>
+      </Col>
       </>
     );
   }else{
@@ -159,7 +132,7 @@ function MyMain(props){
         <Dropdown.Divider/>
         {
           props.tasks.getList().map((t) => <TaskRow task = {t} key ={t.id} 
-          modify = {props.modify} remove = {props.remove} tasks ={props.tasks}/>)
+          modify = {props.modify} remove = {props.remove} mark = {props.mark}/>)
         }
         </Col>
         </>

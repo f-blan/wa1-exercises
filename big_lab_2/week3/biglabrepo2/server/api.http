@@ -36,7 +36,7 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:3001/api/deleteTask/21
+DELETE http://localhost:3001/api/deleteTask/22
 
 ###
 
