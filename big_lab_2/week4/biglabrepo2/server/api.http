@@ -1,0 +1,66 @@
+GET http://localhost:3001/api/filter/all
+
+###
+
+GET http://localhost:3001/api/filter/important
+
+###
+GET http://localhost:3001/api/filter/private
+
+###
+GET http://localhost:3001/api/filter/today
+
+###
+
+GET http://localhost:3001/api/filter/next7days
+
+###
+GET http://localhost:3001/api/filter/gnarl
+
+###
+GET http://localhost:3001/api/retrieveTask/16
+
+###
+
+POST http://localhost:3001/api/addTask
+Content-Type: application/json
+
+{ "description" : "study some inglisc", "important" : 0, "private" : 0, "deadline" : "2021-06-06 14:00", "user" : 1 }
+
+###
+
+PUT http://localhost:3001/api/updateTask
+Content-Type: application/json
+
+{"id": 15, "description" : "eat the sandwitch", "important" : 0, "private" : 0, "deadline" : "2021-06-06 14:00", "user" : 1 }
+
+###
+
+DELETE http://localhost:3001/api/deleteTask/22
+
+###
+
+PUT http://localhost:3001/api/markTask
+Content-Type: application/json
+
+{ "id" : 16, "mark" : 1}
+
+###
+
+POST http://localhost:3001/api/login
+Content-Type: application/json
+
+{ "username" : "salvo@gmail.com", "password" : "asd" }
+
+###
+GET http://localhost:3001/api/filter/all
+
+###
+
+DELETE http://localhost:3001/api/login/current
+
+###
+
+GET http://localhost:3001/api/session
+
+###

@@ -21,6 +21,11 @@ function MyBody(props){
           setTasks(new TaskList(newT));
           setReload(false);
           setLoading(false);
+        }).catch(()=>{
+          console.log("resetted!");
+          setTasks(new TaskList([]));
+          setReload(false);
+          setLoading(false);
         });
       }
 
@@ -30,6 +35,11 @@ function MyBody(props){
       setLoading(true);
       API.loadTasks(props.f_apiname).then(newT => {
         setTasks(new TaskList(newT));
+        setLoading(false);
+      }).catch(() => {
+        console.log("resetted!");
+        setTasks(new TaskList([]));
+        setReload(false);
         setLoading(false);
       });
     }, [props.f_apiname]);
@@ -132,7 +142,7 @@ function MyMain(props){
         <Dropdown.Divider/>
         {
           props.tasks.getList().map((t) => <TaskRow task = {t} key ={t.id} 
-          modify = {props.modify} remove = {props.remove} mark = {props.mark}/>)
+          modify = {props.modify} remove = {props.remove} mark = {props.mark} tasks = {props.tasks}/>)
         }
         </Col>
         </>
